@@ -814,8 +814,9 @@ class UIRoot extends Component {
           showJoinRoom={!this.state.waitingOnAudio && !this.props.entryDisallowed}
           onJoinRoom={() => {
             if (
-              this.props.store.state.preferences.skipEntryTutorial == undefined ||
-              this.props.store.state.preferences.skipEntryTutorial == false
+              false // TODO: Skip this for now
+              // this.props.store.state.preferences.skipEntryTutorial == undefined ||
+              // this.props.store.state.preferences.skipEntryTutorial == false
             ) {
               this.pushHistoryState("entry_step", "tutorial_controls");
             } else if (promptForNameAndAvatarBeforeEntry || !this.props.forcedVREntryType) {
@@ -1205,12 +1206,12 @@ class UIRoot extends Component {
               icon: InviteIcon,
               onClick: () => this.props.scene.emit("action_invite")
             },
-          (this.props.breakpoint === "sm" || this.props.breakpoint === "md") && {
-            id: "follow",
-            label: <FormattedMessage id="more-menu.follow" defaultMessage="Follow" />,
-            icon: LinkIcon,
-            onClick: () => this.props.scene.emit("action_followUs")
-          },
+          // (this.props.breakpoint === "sm" || this.props.breakpoint === "md") && {
+          //   id: "follow",
+          //   label: <FormattedMessage id="more-menu.follow" defaultMessage="Follow" />,
+          //   icon: LinkIcon,
+          //   onClick: () => this.props.scene.emit("action_followUs")
+          // },
           (this.props.breakpoint === "sm" || this.props.breakpoint === "md") && {
             id: "feedback",
             label: <FormattedMessage id="more-menu.feedback" defaultMessage="Feedback" />,
@@ -1582,7 +1583,7 @@ class UIRoot extends Component {
                       scene={this.props.scene}
                       store={this.props.store}
                     />
-                    //<FollowUsPopoverContainer scene={this.props.scene} />
+                    {/* <FollowUsPopoverContainer scene={this.props.scene} /> */}
                     <ToolbarButton
                       icon={<FeedbackIcon />}
                       preset="basic"
@@ -1633,26 +1634,26 @@ class UIRoot extends Component {
                       </>
                     )}
                     <ChatToolbarButtonContainer onClick={() => this.toggleSidebar("chat")} />
-                    // <ToolbarButton
-                    //   icon={< ControlsIcon />}
-                    //   label={<FormattedMessage id="toolbar.controls-overview" defaultMessage="Controls" />}
-                    //   preset="accent3"
-                    //   onClick={() => {
-                    //     this.showNonHistoriedDialog(ControlsOverviewModal, {
-                    //       scene: this.props.scene,
-                    //       store: this.props.store
-                    //     });
-                    //   }}
-                    // />
+                    {/* <ToolbarButton
+                      icon={< ControlsIcon />}
+                      label={<FormattedMessage id="toolbar.controls-overview" defaultMessage="Controls" />}
+                      preset="accent3"
+                      onClick={() => {
+                        this.showNonHistoriedDialog(ControlsOverviewModal, {
+                          scene: this.props.scene,
+                          store: this.props.store
+                        });
+                      }}
+                    /> */}
                     {entered && isMobileVR && (
-                        <ToolbarButton
-                          className={styleUtils.hideLg}
-                          icon={<VRIcon />}
-                          preset="accept"
-                          label={<FormattedMessage id="toolbar.enter-vr-button" defaultMessage="Enter VR" />}
-                          onClick={() => exit2DInterstitialAndEnterVR(true)}
-                        />
-                      )}
+                      <ToolbarButton
+                        className={styleUtils.hideLg}
+                        icon={<VRIcon />}
+                        preset="accept"
+                        label={<FormattedMessage id="toolbar.enter-vr-button" defaultMessage="Enter VR" />}
+                        onClick={() => exit2DInterstitialAndEnterVR(true)}
+                      />
+                    )}
                   </>
                 }
                 toolbarRight={

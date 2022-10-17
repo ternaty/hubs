@@ -9,7 +9,7 @@ import { DialogAdapter } from "../../naf-dialog-adapter";
 import PhoenixAdapter from "../../phoenix-adapter";
 import { emitter } from "../../emitter";
 
-import { App } from "../../App";
+import { App } from "../../app";
 window.APP = new App();
 const store = window.APP.store;
 
@@ -354,7 +354,7 @@ export class ConnectionTest extends React.Component {
       () => {
         this.setState({ copyButtonLabel: "Copied!" });
       },
-      function(reason) {
+      function (reason) {
         alert("Clipboard error: " + reason);
       }
     );
@@ -365,7 +365,7 @@ export class ConnectionTest extends React.Component {
     let dateTime = new Date().toISOString();
     dateTime = dateTime.replaceAll(":", "-");
     const blob = new Blob([html], { type: "text/html" });
-    const link = window.document.createElement('a');
+    const link = window.document.createElement("a");
     link.href = window.URL.createObjectURL(blob);
     link.download = "connection-test_" + dateTime + "_UTC." + "html";
     document.body.appendChild(link);

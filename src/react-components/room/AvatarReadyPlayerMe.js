@@ -13,7 +13,7 @@ import { Column } from "../layout/Column";
 import { proxiedUrlFor } from "../../utils/media-url-utils";
 
 export function AvatarReadyPlayerMe({ store, onClose, closeMediaBrowser, isIndependentDialog = true }) {
-  const iframeURL = "https://farvel.readyplayer.me";
+  const iframeURL = "https://demo.readyplayer.me/avatar?frameApi&bodyType=halfbody";
   const [accepted, setAccepted] = useState(false);
 
   const closeBack = useCallback(
@@ -38,38 +38,32 @@ export function AvatarReadyPlayerMe({ store, onClose, closeMediaBrowser, isIndep
     [closeBack, store]
   );
 
-  const onBtnAccepted = useCallback(
-    () => {
-      setAccepted(true);
-      // set store
-      store.update({ activity: { hasAcceptedRpmAvatarNotice: true } });
-    },
-    [setAccepted, store]
-  );
+  const onBtnAccepted = useCallback(() => {
+    setAccepted(true);
+    // set store
+    store.update({ activity: { hasAcceptedRpmAvatarNotice: true } });
+  }, [setAccepted, store]);
 
-  useEffect(
-    () => {
-      // get store value for accepted
-      setAccepted(store.state.activity.hasAcceptedRpmAvatarNotice);
+  useEffect(() => {
+    // get store value for accepted
+    setAccepted(store.state.activity.hasAcceptedRpmAvatarNotice);
 
-      function receiveMessage(event) {
-        // Check if the received message is a string and a glb url
-        // if not ignore it, and print details to the console
-        if (typeof event.data === "string" && event.data.startsWith("https://") && event.data.endsWith(".glb")) {
-          const url = proxiedUrlFor(event.data + "?v=" + new Date().getTime()); // add a timestamp to the url to prevent caching
-          onSuccess({ url });
-        } else {
-          console.warn(`Received message from unknown source: ${event.data}`);
-        }
+    function receiveMessage(event) {
+      // Check if the received message is a string and a glb url
+      // if not ignore it, and print details to the console
+      if (typeof event.data === "string" && event.data.startsWith("https://") && event.data.endsWith(".glb")) {
+        const url = proxiedUrlFor(event.data + "?v=" + new Date().getTime()); // add a timestamp to the url to prevent caching
+        onSuccess({ url });
+      } else {
+        console.warn(`Received message from unknown source: ${event.data}`);
       }
-      window.addEventListener("message", receiveMessage, false);
+    }
+    window.addEventListener("message", receiveMessage, false);
 
-      return () => {
-        window.removeEventListener("message", receiveMessage, false);
-      };
-    },
-    [onSuccess, setAccepted, store]
-  );
+    return () => {
+      window.removeEventListener("message", receiveMessage, false);
+    };
+  }, [onSuccess, setAccepted, store]);
 
   return (
     <FullscreenLayout
@@ -124,7 +118,7 @@ export function AvatarReadyPlayerMe({ store, onClose, closeMediaBrowser, isIndep
             <p>
               <FormattedMessage
                 id="avatar.readyplayerme.dialog.notice.infoAccept"
-                defaultMessage="If you click the &quot;Yes, agree&quot; button, then you agree to it."
+                defaultMessage='If you click the "Yes, agree" button, then you agree to it.'
               />
             </p>
             <Button preset="primary" onClick={onBtnAccepted}>

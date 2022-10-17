@@ -18,7 +18,7 @@ export function AvatarSettingsContent({
   onCreateRpmAvatar,
   ...rest
 }) {
-  const showRpmOption = true; // TODO: implement with admin interface?
+  const showRpmOption = false; // TODO: implement with admin interface?
   return (
     <Column as="form" className={styles.content} {...rest}>
       <TextInputField
