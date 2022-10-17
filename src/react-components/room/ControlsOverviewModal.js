@@ -16,9 +16,9 @@ export function ControlsOverviewModal({ onClose }) {
     >
       <Column padding center className={styles.content}>
         {getLocale() != "de" ? (
-          <iframe src="https://farvel.space/en/app-controls-overview/" className={styles.iframe} />
+          <iframe src="https://ternaty.com/en/app-controls-overview/" className={styles.iframe} />
         ) : (
-          <iframe src="https://farvel.space/app-controls-overview/" className={styles.iframe} />
+          <iframe src="https://ternaty.com/app-controls-overview/" className={styles.iframe} />
         )}
       </Column>
     </Modal>

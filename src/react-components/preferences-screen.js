@@ -26,9 +26,6 @@ import { CAMERA_MODE_THIRD_PERSON_VIEW, CAMERA_MODE_FIRST_PERSON } from "../syst
 import dropdownArrowUrl from "../assets/images/dropdown_arrow.png";
 import dropdownArrow2xUrl from "../assets/images/dropdown_arrow@2x.png";
 
-import dropdownArrowUrl from "../assets/images/dropdown_arrow.png";
-import dropdownArrow2xUrl from "../assets/images/dropdown_arrow@2x.png";
-
 export const CLIPPING_THRESHOLD_MIN = 0.0;
 export const CLIPPING_THRESHOLD_MAX = 0.1;
 export const CLIPPING_THRESHOLD_STEP = 0.001;

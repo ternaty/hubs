@@ -1216,7 +1216,7 @@ class UIRoot extends Component {
             id: "feedback",
             label: <FormattedMessage id="more-menu.feedback" defaultMessage="Feedback" />,
             icon: FeedbackIcon,
-            onClick: () => (window.location.href = "mailto:hi@farvel.space") // TODO: find a better solution: form?
+            onClick: () => (window.location.href = "mailto:hi@ternaty.com") // TODO: find a better solution: form?
           },
           this.isFavorited()
             ? {
