@@ -188,9 +188,9 @@ export function HomePage() {
           </Column>
         </Container>
       )}
-      <Container>
+      {/* <Container>
         <ConnectionTest />
-      </Container>
+      </Container> */}
       {isHmc() ? (
         <Column center>
           <SocialBar />
