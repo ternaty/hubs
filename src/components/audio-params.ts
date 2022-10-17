@@ -44,8 +44,8 @@ export const AvatarAudioDefaults: AudioSettings = {
   audioType: AudioType.PannerNode,
   distanceModel: DistanceModelType.Inverse,
   panningModel: PanningModelType.HRTF,
-  rolloffFactor: 20, // FARM-325: adapt for better usage in small rooms
-  refDistance: 3, // FARM-325: adapt for better usage in small rooms
+  rolloffFactor: 5,
+  refDistance: 5,
   maxDistance: 10000,
   coneInnerAngle: 180,
   coneOuterAngle: 360,
