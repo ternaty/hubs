@@ -62,7 +62,7 @@ export class ConnectionTest extends React.Component {
     };
 
     // Uncomment to test with existing room ID rather than creating a new one each time
-    this._roomId = "rLhU2RT";
+    this._roomId = "f4imfMv";
   }
 
   fetchUserAgent = async () => {
