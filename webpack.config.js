@@ -12,6 +12,7 @@ const TOML = require("@iarna/toml");
 const fetch = require("node-fetch");
 const packageLock = require("./package-lock.json");
 const request = require("request");
+const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 
 function createHTTPSConfig() {
   // Generate certs for the local webpack-dev-server.
@@ -164,6 +165,9 @@ async function fetchAppConfigAndEnvironmentVars() {
   }
 
   const appConfig = await appConfigsResponse.json();
+  if (appConfig.theme?.themes) {
+    appConfig.theme.themes = JSON.parse(appConfig.theme.themes);
+  }
 
   // dev.reticulum.io doesn't run ita
   if (host === "dev.reticulum.io") {
@@ -309,7 +313,8 @@ module.exports = async (env, argv) => {
         fs: false,
         stream: require.resolve("stream-browserify"),
         path: require.resolve("path-browserify")
-      }
+      },
+      extensions: [".ts", ".tsx", ".js", ".jsx"]
     },
     entry: {
       support: path.join(__dirname, "src", "support.js"),
@@ -351,6 +356,9 @@ module.exports = async (env, argv) => {
       liveReload: liveReload,
       historyApiFallback: {
         rewrites: [
+          { from: /^\/link/, to: "/link.html" },
+          { from: /^\/avatars/, to: "/avatar.html" },
+          { from: /^\/scenes/, to: "/scene.html" },
           { from: /^\/signin/, to: "/signin.html" },
           { from: /^\/discord/, to: "/discord.html" },
           { from: /^\/cloud/, to: "/cloud.html" },
@@ -429,7 +437,8 @@ module.exports = async (env, argv) => {
             }
           }
         },
-        // On legacy browsers we want to show a "unsupported browser" page. That page needs to polyfill more things so we set the target to ie11
+        // On legacy browsers we want to show a "unsupported browser" page. That page needs to run on older browsers so w set the targeet to ie11.
+        // Note: We do not actually include any polyfills so the code in these files just needs to be written with bare minimum browser APIs
         {
           test: [
             path.resolve(__dirname, "src", "utils", "configs.js"),
@@ -474,6 +483,15 @@ module.exports = async (env, argv) => {
         {
           test: /\.js$/,
           include: [path.resolve(__dirname, "node_modules", "pdfjs-dist")],
+          loader: "babel-loader"
+        },
+        {
+          // We use babel to handle typescript so that features are correctly polyfilled for our targeted browsers. It also ends up being
+          // a good deal faster since it just strips out types. It does NOT typecheck. Typechecking is handled at build time by `npm run check`
+          // and concurrently at dev time with ForkTsCheckerWebpackPlugin
+          test: /\.tsx?$/,
+          include: [path.resolve(__dirname, "src")],
+          exclude: [path.resolve(__dirname, "node_modules")],
           loader: "babel-loader"
         },
         {
@@ -527,22 +545,27 @@ module.exports = async (env, argv) => {
           ]
         },
         {
-          test: /\.(png|jpg|gif|glb|ogg|mp3|mp4|wav|woff2|webm|3dl|cube)$/,
-          type: "asset/resource",
-          generator: {
-            // move required assets to output dir and add a hash for cache busting
-            // Make asset paths relative to /src
-            filename: function ({ filename }) {
-              let rootPath = path.dirname(filename) + path.sep;
-              if (rootPath.startsWith("src" + path.sep)) {
-                const parts = rootPath.split(path.sep);
-                parts.shift();
-                rootPath = parts.join(path.sep);
+          oneOf: [
+            { resourceQuery: /inline/, type: "asset/inline" },
+            {
+              test: /\.(png|jpg|gif|glb|ogg|mp3|mp4|wav|woff|woff2|webm|3dl|cube)$/,
+              type: "asset/resource",
+              generator: {
+                // move required assets to output dir and add a hash for cache busting
+                // Make asset paths relative to /src
+                filename: function ({ filename }) {
+                  let rootPath = path.dirname(filename) + path.sep;
+                  if (rootPath.startsWith("src" + path.sep)) {
+                    const parts = rootPath.split(path.sep);
+                    parts.shift();
+                    rootPath = parts.join(path.sep);
+                  }
+                  // console.log(path, name, contenthash, ext);
+                  return rootPath + "[name]-[contenthash].[ext]";
+                }
               }
-              // console.log(path, name, contenthash, ext);
-              return rootPath + "[name]-[contenthash].[ext]";
             }
-          }
+          ]
         },
         {
           test: /\.(wasm)$/,
@@ -605,6 +628,14 @@ module.exports = async (env, argv) => {
       }
     },
     plugins: [
+      new ForkTsCheckerWebpackPlugin({
+        typescript: {
+          diagnosticOptions: {
+            semantic: true,
+            syntactic: false // this will already fail in the babel step
+          }
+        }
+      }),
       new webpack.ProvidePlugin({
         process: "process/browser",
         // TODO we should bee direclty importing THREE stuff when we need it

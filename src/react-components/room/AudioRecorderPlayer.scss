@@ -1,0 +1,7 @@
+@use "../styles/theme.scss";
+
+:local(.placeholder) {
+  p {
+    color: theme.$darkgrey;
+  }
+}

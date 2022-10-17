@@ -7,6 +7,7 @@ import "./react-components/styles/global.scss";
 import "./assets/stylesheets/scene.scss";
 
 import "aframe";
+import "networked-aframe/src/index";
 import "./utils/logging";
 import { patchWebGLRenderingContext } from "./utils/webgl";
 patchWebGLRenderingContext();
@@ -27,7 +28,7 @@ import "./systems/scene-systems";
 import "./gltf-component-mappings";
 import { EnvironmentSystem } from "./systems/environment-system";
 
-import { App } from "./App";
+import { App } from "./app";
 
 window.APP = new App();
 
@@ -66,8 +67,9 @@ const onReady = async () => {
 
   const sceneId = qs.get("scene_id") || document.location.pathname.substring(1).split("/")[1];
   console.log(`Scene ID: ${sceneId}`);
+  const hideUI = qs.get("hide_ui");
 
-  let uiProps = { sceneId: sceneId };
+  let uiProps = { sceneId: sceneId, hideUI: hideUI };
 
   mountUI(scene);
 

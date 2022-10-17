@@ -1,8 +1,8 @@
-# [Mozilla Hubs](https://hubs.mozilla.com/)
+# [space client](https://app.farvel.space/)
 
-[![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0) [![Build Status](https://travis-ci.org/mozilla/hubs.svg?branch=master)](https://travis-ci.org/mozilla/hubs) [![Discord](https://img.shields.io/discord/498741086295031808)](https://discord.gg/CzAbuGu)
+[![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
 
-The client-side code for [Mozilla Hubs](https://hubs.mozilla.com/), an online 3D collaboration platform that works for desktop, mobile, and VR platforms.
+The client-side code for [farvel.space](https://app.farvel.space/). This is a fork of [Mozilla Hubs](https://github.com/mozilla/hubs).
 
 [Learn more about Hubs](https://hubs.mozilla.com/docs/welcome.html)
 
@@ -24,7 +24,7 @@ Run the following commands:
 
 ```bash
 git clone https://github.com/mozilla/hubs.git
-cd hubs
+cd space-client
 # nvm use v16.16.0 # if using NVM
 npm ci
 npm run dev
@@ -47,7 +47,7 @@ The Hubs documentation can be found [here](https://hubs.mozilla.com/docs).
 
 ## Community
 
-Join us on our [Discord Server](https://discord.gg/CzAbuGu) or [follow us on Twitter](https://twitter.com/MozillaHubs).
+Join the Mozilla Hubs Community on their [Discord Server](https://discord.gg/CzAbuGu) or [follow them on Twitter](https://twitter.com/MozillaHubs).
 
 ## Contributing
 
@@ -67,8 +67,9 @@ Contributors are expected to abide by the project's [Code of Conduct](./CODE_OF_
 
 ## Privacy
 
-Mozilla and Hubs believe that privacy is fundamental to a healthy internet. Read our [privacy policy](https://www.mozilla.org/en-US/privacy/hubs/) for more info.
+At farvel (that’s us), we believe that privacy is fundamental to a healthy internet. Read our [privacy policy](https://farvel.space/en/app-privacy/) for more info.
+
 
 ## License
 
-Hubs is licensed with the [Mozilla Public License 2.0](./LICENSE)
+space-client is licensed with the [Mozilla Public License 2.0](./LICENSE)

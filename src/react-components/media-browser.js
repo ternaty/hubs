@@ -15,8 +15,10 @@ import { ReactComponent as LinkIcon } from "./icons/Link.svg";
 import { remixAvatar } from "../utils/avatar-utils";
 import { fetchReticulumAuthenticated, getReticulumFetchUrl } from "../utils/phoenix-utils";
 import { proxiedUrlFor, scaledThumbnailUrlFor } from "../utils/media-url-utils";
-import { CreateTile, MediaTile } from "./room/MediaTiles";
+import { CreateTile, UploadTile, MediaTile, ReadyPlayerMeTile } from "./room/MediaTiles";
 import { SignInMessages } from "./auth/SignInModal";
+import { AvatarReadyPlayerMe } from "./room/AvatarReadyPlayerMe";
+
 const isMobile = AFRAME.utils.device.isMobile();
 const isMobileVR = AFRAME.utils.device.isMobileVR();
 
@@ -190,6 +192,10 @@ class MediaBrowserContainer extends Component {
     newState.showNav = !!(searchParams.get("media_nav") !== "false");
     newState.selectAction = searchParams.get("selectAction") || "spawn";
 
+    if (newState.selectAction === "create-rpm") {
+      this.onCreateReadyPlayerMeAvatar(false);
+    }
+
     if (result && result.suggestions && result.suggestions.length > 0) {
       newState.facets = result.suggestions.map(s => {
         return { text: s, params: { q: s } };
@@ -336,6 +342,14 @@ class MediaBrowserContainer extends Component {
 
   onCreateAvatar = () => {
     window.dispatchEvent(new CustomEvent("action_create_avatar"));
+  };
+
+  onCreateReadyPlayerMeAvatar = (goBackToMediaBrowser = true) => {
+    this.props.showNonHistoriedDialog(AvatarReadyPlayerMe, {
+      store: this.props.store,
+      closeMediaBrowser: this.close,
+      isIndependentDialog: false
+    });
   };
 
   processThumbnailUrl = (entry, thumbnailWidth, thumbnailHeight) => {
@@ -486,12 +500,26 @@ class MediaBrowserContainer extends Component {
         !showEmptyStringOnNoResult ? (
           <>
             {urlSource === "avatars" && (
-              <CreateTile
+              // <CreateTile
+              //   type="avatar"
+              //   onClick={this.onCreateReadyPlayerMeAvatar}
+              //   label={<FormattedMessage id="media-browser.create-avatar" defaultMessage="Create Avatar" />}
+              // />
+              <ReadyPlayerMeTile
                 type="avatar"
-                onClick={this.onCreateAvatar}
+                onClick={this.onCreateReadyPlayerMeAvatar}
                 label={<FormattedMessage id="media-browser.create-avatar" defaultMessage="Create Avatar" />}
               />
             )}
+            {urlSource === "avatars" &&
+              this.props.hubChannel &&
+              this.props.hubChannel.can("pin_objects") && (
+                <UploadTile
+                  type="avatar"
+                  onClick={this.onCreateAvatar}
+                  label={<FormattedMessage id="media-browser.upload-avatar" defaultMessage="Upload Avatar" />}
+                />
+              )}
             {urlSource === "scenes" &&
               configs.feature("enable_spoke") && (
                 <CreateTile

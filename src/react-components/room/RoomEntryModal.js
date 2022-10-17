@@ -52,16 +52,17 @@ export function RoomEntryModal({
               </span>
             </Button>
           )}
+          {/* basic, transparent */}
           {showEnterOnDevice && (
-            <Button preset="accent5" onClick={onEnterOnDevice}>
+            <Button preset="basic" onClick={onEnterOnDevice}> 
               <VRIcon />
               <span>
-                <FormattedMessage id="room-entry-modal.enter-on-device-button" defaultMessage="Enter On Device" />
+                <FormattedMessage id="room-entry-modal.enter-on-device-button" defaultMessage="Enter in VR" />
               </span>
             </Button>
           )}
           {showSpectate && (
-            <Button preset="accent2" onClick={onSpectate}>
+            <Button preset="basic" onClick={onSpectate}>
               <ShowIcon />
               <span>
                 <FormattedMessage id="room-entry-modal.spectate-button" defaultMessage="Spectate" />

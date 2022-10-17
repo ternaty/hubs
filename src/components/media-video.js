@@ -1,6 +1,6 @@
 /* global performance THREE AFRAME NAF MediaStream setTimeout */
 import configs from "../utils/configs";
-import audioIcon from "../assets/images/audio.png";
+import audioIcon from "../assets/images/audio_farvel.png";
 import { paths } from "../systems/userinput/paths";
 import HLS from "hls.js";
 import { MediaPlayer } from "dashjs";
@@ -40,7 +40,7 @@ for (let i = 0; i <= 20; i++) {
   VOLUME_LABELS[i] = s;
 }
 
-function timeFmt(t) {
+export function timeFmt(t) {
   let s = Math.floor(t),
     h = Math.floor(s / 3600);
   s -= h * 3600;
@@ -193,20 +193,21 @@ AFRAME.registerComponent("media-video", {
   ensureOwned() {
     return (
       !this.el.components.networked ||
-      ((this.networkedEl && NAF.utils.isMine(this.networkedEl)) || NAF.utils.takeOwnership(this.networkedEl))
+      (this.networkedEl && NAF.utils.isMine(this.networkedEl)) ||
+      NAF.utils.takeOwnership(this.networkedEl)
     );
   },
 
   seekForward() {
     if (!this.videoIsLive && this.ensureOwned()) {
-      this.video.currentTime += 30;
+      this.video.currentTime += 15;
       this.el.setAttribute("media-video", "time", this.video.currentTime);
     }
   },
 
   seekBack() {
     if (!this.videoIsLive && this.ensureOwned()) {
-      this.video.currentTime -= 10;
+      this.video.currentTime -= 15;
       this.el.setAttribute("media-video", "time", this.video.currentTime);
     }
   },
@@ -358,6 +359,8 @@ AFRAME.registerComponent("media-video", {
     } else {
       this.audio = new THREE.Audio(audioListener);
     }
+    // Default to being quiet so it fades in when volume is set by audio systems
+    this.audio.gain.gain.value = 0;
     this.audioSystem.addAudio({ sourceType: SourceType.MEDIA_VIDEO, node: this.audio });
 
     this.audio.setNodeSource(this.mediaElementAudioSource);
@@ -370,6 +373,8 @@ AFRAME.registerComponent("media-video", {
 
     APP.audios.set(this.el, this.audio);
     updateAudioSettings(this.el, this.audio);
+    // Original audio source volume can now be restored as audio systems will take over
+    this.mediaElementAudioSource.mediaElement.volume = 1;
   },
 
   async updateSrc(oldData) {
@@ -477,6 +482,8 @@ AFRAME.registerComponent("media-video", {
     }
 
     if (!texture.isVideoTexture) {
+      // this.mesh.material.transparent = true; // have transparency for farvel audio icon texture (rounded)
+      this.mesh.material.alphaTest = 0.5; // using mask mode instead of blend mode
       this.mesh.material.map = audioIconTexture;
     } else {
       this.mesh.material.map = texture;
@@ -510,7 +517,7 @@ AFRAME.registerComponent("media-video", {
       }
 
       let resolved = false;
-      const failLoad = function(e) {
+      const failLoad = function (e) {
         if (resolved) return;
         resolved = true;
         clearTimeout(pollTimeout);
@@ -529,16 +536,6 @@ AFRAME.registerComponent("media-video", {
         texture = new THREE.VideoTexture(videoEl);
         texture.minFilter = THREE.LinearFilter;
         texture.encoding = THREE.sRGBEncoding;
-
-        // Firefox seems to have video play (or decode) performance issue.
-        // Somehow setting RGBA format improves the performance very well.
-        // Some tickets have been opened for the performance issue but
-        // I don't think it will be fixed soon. So we set RGBA format for Firefox
-        // as workaround so far.
-        // See https://github.com/mozilla/hubs/issues/3470
-        if (/firefox/i.test(navigator.userAgent)) {
-          texture.format = THREE.RGBAFormat;
-        }
 
         isReady = () => {
           if (texture.hls && texture.hls.streamController.audioOnly) {
@@ -581,7 +578,7 @@ AFRAME.registerComponent("media-video", {
         // If hls.js is supported we always use it as it gives us better events
       } else if (contentType.startsWith("application/dash")) {
         const dashPlayer = MediaPlayer().create();
-        dashPlayer.extend("RequestModifier", function() {
+        dashPlayer.extend("RequestModifier", function () {
           return { modifyRequestHeader: xhr => xhr, modifyRequestURL: proxiedUrlFor };
         });
         dashPlayer.on(MediaPlayer.events.ERROR, failLoad);
@@ -631,7 +628,7 @@ AFRAME.registerComponent("media-video", {
             hls.loadSource(url);
             hls.attachMedia(videoEl);
 
-            hls.on(HLS.Events.ERROR, function(event, data) {
+            hls.on(HLS.Events.ERROR, function (event, data) {
               if (data.fatal) {
                 switch (data.type) {
                   case HLS.ErrorTypes.NETWORK_ERROR:
@@ -732,8 +729,10 @@ AFRAME.registerComponent("media-video", {
     const isPinned = pinnableElement.components.pinnable && pinnableElement.components.pinnable.data.pinned;
     this.playbackControls.object3D.visible = !this.data.hidePlaybackControls && !!this.video;
     this.timeLabel.object3D.visible = !this.data.hidePlaybackControls;
-    this.volumeLabel.object3D.visible = this.volumeUpButton.object3D.visible = this.volumeDownButton.object3D.visible =
-      this.hasAudioTracks && !this.data.hidePlaybackControls && !!this.video;
+    this.volumeLabel.object3D.visible =
+      this.volumeUpButton.object3D.visible =
+      this.volumeDownButton.object3D.visible =
+        this.hasAudioTracks && !this.data.hidePlaybackControls && !!this.video;
 
     this.snapButton.object3D.visible =
       !!this.video && !this.data.contentType.startsWith("audio/") && window.APP.hubChannel.can("spawn_and_move_media");
@@ -742,7 +741,10 @@ AFRAME.registerComponent("media-video", {
     const mayModifyPlayHead =
       !!this.video && !this.videoIsLive && (!isPinned || window.APP.hubChannel.can("pin_objects"));
 
-    this.playPauseButton.object3D.visible = this.seekForwardButton.object3D.visible = this.seekBackButton.object3D.visible = mayModifyPlayHead;
+    this.playPauseButton.object3D.visible =
+      this.seekForwardButton.object3D.visible =
+      this.seekBackButton.object3D.visible =
+        mayModifyPlayHead;
 
     this.linkButton.object3D.visible = !!mediaLoader.mediaOptions.href;
 
@@ -761,7 +763,7 @@ AFRAME.registerComponent("media-video", {
   },
 
   tick: (() => {
-    return function() {
+    return function () {
       if (!this.video) return;
 
       const userinput = this.el.sceneEl.systems.userinput;

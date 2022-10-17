@@ -9,14 +9,16 @@ import { ReactComponent as ObjectIcon } from "../icons/Object.svg";
 import { ReactComponent as AvatarIcon } from "../icons/Avatar.svg";
 import { ReactComponent as SceneIcon } from "../icons/Scene.svg";
 import { ReactComponent as UploadIcon } from "../icons/Upload.svg";
+import { ReactComponent as AudioIcon } from "../icons/Audio.svg";
 import { PlacePopoverButton } from "./PlacePopover";
 import { ObjectUrlModalContainer } from "./ObjectUrlModalContainer";
+import { AudioRecorderModal } from "./AudioRecorderModal";
 import configs from "../../utils/configs";
 import { FormattedMessage } from "react-intl";
 import { anyEntityWith } from "../../utils/bit-utils";
 import { MyCameraTool } from "../../bit-components";
 
-export function PlacePopoverContainer({ scene, mediaSearchStore, showNonHistoriedDialog, hubChannel }) {
+export function PlacePopoverContainer({ scene, mediaSearchStore, showNonHistoriedDialog, hubChannel, store }) {
   const [items, setItems] = useState([]);
 
   useEffect(
@@ -85,6 +87,17 @@ export function PlacePopoverContainer({ scene, mediaSearchStore, showNonHistorie
               color: "accent3",
               label: <FormattedMessage id="place-popover.item-type.upload" defaultMessage="Upload" />,
               onSelect: () => showNonHistoriedDialog(ObjectUrlModalContainer, { scene })
+            },
+            {
+              id: "audiorecording",
+              icon: AudioIcon,
+              color: "accent3",
+              label: <FormattedMessage id="place-popover.item-type.audiorecording" defaultMessage="Record" />,
+              onSelect: () =>
+                showNonHistoriedDialog(AudioRecorderModal, {
+                  scene: scene,
+                  store: store
+                })
             }
           ];
         }
@@ -121,5 +134,6 @@ PlacePopoverContainer.propTypes = {
   hubChannel: PropTypes.object.isRequired,
   scene: PropTypes.object.isRequired,
   mediaSearchStore: PropTypes.object.isRequired,
-  showNonHistoriedDialog: PropTypes.func.isRequired
+  showNonHistoriedDialog: PropTypes.func.isRequired,
+  store: PropTypes.object.isRequired
 };

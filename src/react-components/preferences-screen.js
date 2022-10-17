@@ -8,7 +8,7 @@ import { faExclamationTriangle } from "@fortawesome/free-solid-svg-icons/faExcla
 import { FormattedMessage, injectIntl, useIntl, defineMessages } from "react-intl";
 import styles from "../assets/stylesheets/preferences-screen.scss";
 import { AVAILABLE_LOCALES } from "../assets/locales/locale_config";
-import { themes } from "./styles/theme";
+import { themes } from "../utils/theme";
 import MediaDevicesManager from "../utils/media-devices-manager";
 import { MediaDevicesEvents } from "../utils/media-devices-utils";
 import { Slider } from "./input/Slider";
@@ -21,6 +21,10 @@ import {
   getScreenResolutionHeight,
   setMaxResolution
 } from "../utils/screen-orientation-utils";
+import { CAMERA_MODE_THIRD_PERSON_VIEW, CAMERA_MODE_FIRST_PERSON } from "../systems/camera-system";
+
+import dropdownArrowUrl from "../assets/images/dropdown_arrow.png";
+import dropdownArrow2xUrl from "../assets/images/dropdown_arrow@2x.png";
 
 export const CLIPPING_THRESHOLD_MIN = 0.0;
 export const CLIPPING_THRESHOLD_MAX = 0.1;
@@ -225,11 +229,7 @@ class Select extends React.Component {
         <select value={this.props.value} tabIndex="0" onChange={this.props.onChange}>
           {this.props.children}
         </select>
-        <img
-          className={styles.dropdownArrow}
-          src="../assets/images/dropdown_arrow.png"
-          srcSet="../assets/images/dropdown_arrow@2x.png 2x"
-        />
+        <img className={styles.dropdownArrow} src={dropdownArrowUrl} srcSet={`${dropdownArrow2xUrl} 2x`} />
       </div>
     );
   }
@@ -452,6 +452,10 @@ const preferenceLabels = defineMessages({
     id: "preferences-screen.preference.enable-dynamic-shadows",
     defaultMessage: "Enable Real-time Shadows"
   },
+  enableThirdPersonView: {
+    id: "preferences-screen.preference.enable-third-person-view",
+    defaultMessage: "Enable Third-Person View"
+  },
   disableAutoPixelRatio: {
     id: "preferences-screen.preference.disable-auto-pixel-ratio",
     defaultMessage: "Disable automatic pixel ratio adjustments"
@@ -499,6 +503,10 @@ const preferenceLabels = defineMessages({
   lazyLoadSceneMedia: {
     id: "preferences-screen.preference.lazy-load-scene-media",
     defaultMessage: "Enable Scene Media Lazy Loading"
+  },
+  skipEntryTutorial: {
+    id: "preferences-screen.preference.skipEntryTutorial",
+    defaultMessage: "Skip video tutorial on entry"
   },
   disableLeftRightPanning: {
     id: "preferences-screen.preference.disable-panning",
@@ -908,6 +916,10 @@ class PreferencesScreen extends Component {
     if (preferredMic !== this.mediaDevicesManager.selectedMicDeviceId) {
       this.mediaDevicesManager.startMicShare({ updatePrefs: false }).then(this.updateMediaDevices);
     }
+    const { enableThirdPersonView } = this.props.store.state.preferences;
+    this.props.scene.systems["hubs-systems"].cameraSystem.setMode(
+      enableThirdPersonView ? CAMERA_MODE_THIRD_PERSON_VIEW : CAMERA_MODE_FIRST_PERSON
+    );
   }
 
   createSections() {
@@ -1110,6 +1122,11 @@ class PreferencesScreen extends Component {
             prefType: PREFERENCE_LIST_ITEM_TYPE.SELECT,
             options: availableThemes
           },
+          {
+            key: "skipEntryTutorial",
+            prefType: PREFERENCE_LIST_ITEM_TYPE.CHECK_BOX,
+            defaultBool: false
+          },
           { key: "maxResolution", prefType: PREFERENCE_LIST_ITEM_TYPE.MAX_RESOLUTION },
           {
             key: "nametagVisibility",
@@ -1191,6 +1208,11 @@ class PreferencesScreen extends Component {
           },
           {
             key: "enableDynamicShadows",
+            prefType: PREFERENCE_LIST_ITEM_TYPE.CHECK_BOX,
+            defaultBool: false
+          },
+          {
+            key: "enableThirdPersonView",
             prefType: PREFERENCE_LIST_ITEM_TYPE.CHECK_BOX,
             defaultBool: false
           },
@@ -1321,9 +1343,7 @@ class PreferencesScreen extends Component {
         </Nav>
         <div className={styles.contentContainer}>
           <div className={styles.scrollingContent}>
-            {this.createSections()
-              .get(this.state.category)
-              .map(Section)}
+            {this.createSections().get(this.state.category).map(Section)}
             {shouldPromptForRefresh && (
               <div
                 style={{

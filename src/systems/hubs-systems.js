@@ -30,6 +30,9 @@ import { AudioZonesSystem } from "./audio-zones-system";
 import { GainSystem } from "./audio-gain-system";
 import { EnvironmentSystem } from "./environment-system";
 import { NameTagVisibilitySystem } from "./name-tag-visibility-system";
+//mike-frame
+import { FarvelFrameSys } from "./farvel-frame-system";
+//mike-frame-end
 
 // new world
 import { networkSendSystem, networkReceiveSystem } from "./netcode";
@@ -42,10 +45,14 @@ import { networkedTransformSystem } from "./networked-transform";
 import { buttonSystems } from "./single-action-button-system";
 import { constraintsSystem } from "./bit-constraints-system";
 import { mediaFramesSystem } from "./bit-media-frames";
+import { videoSystem } from "../bit-systems/video-system";
 import { cameraToolSystem } from "../bit-systems/camera-tool";
+import { mediaLoadingSystem } from "../bit-systems/media-loading";
 // import { holdableButtonSystem } from "./holdable-button-system";
 import { physicsCompatSystem } from "./bit-physics";
 import { destroyAtExtremeDistanceSystem } from "./bit-destroy-at-extreme-distances";
+import { videoMenuSystem } from "../bit-systems/video-menu-system";
+import { deleteEntitySystem } from "../bit-systems/delete-entity-system";
 
 AFRAME.registerSystem("hubs-systems", {
   init() {
@@ -84,6 +91,9 @@ AFRAME.registerSystem("hubs-systems", {
     this.gainSystem = new GainSystem();
     this.environmentSystem = new EnvironmentSystem(this.el);
     this.nameTagSystem = new NameTagVisibilitySystem(this.el);
+    //mike-frame
+    this.farvelFrameSys = new FarvelFrameSys(this.el);
+    //mike-frame-end
 
     window.$S = this;
   },
@@ -94,8 +104,9 @@ AFRAME.registerSystem("hubs-systems", {
 
     networkReceiveSystem(world);
     onOwnershipLost(world);
+    mediaLoadingSystem(world);
 
-    physicsCompatSystem(APP.world);
+    physicsCompatSystem(world);
 
     networkedTransformSystem(world);
 
@@ -145,11 +156,17 @@ AFRAME.registerSystem("hubs-systems", {
     this.spriteSystem.tick(t, dt);
     this.uvScrollSystem.tick(dt);
     this.shadowSystem.tick();
+    videoMenuSystem(world, systems.userinput);
+    videoSystem(world, this.audioSystem);
     mediaFramesSystem(world);
     this.audioZonesSystem.tick(this.el);
     this.gainSystem.tick();
     this.nameTagSystem.tick();
+    //mike-frame
+    this.farvelFrameSys.tick(t, dt);
+    //mike-frame-end
 
+    deleteEntitySystem(world, systems.userinput);
     destroyAtExtremeDistanceSystem(world);
     removeNetworkedObjectButtonSystem(world);
     removeObject3DSystem(world);

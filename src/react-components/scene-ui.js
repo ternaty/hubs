@@ -18,6 +18,11 @@ function ResizeHookWrapper({ store, scene }) {
   return <></>;
 }
 
+const IfRenderUi = props => {
+  const hide = props.hide === undefined ? "false" : props.hide;
+  return hide == "true" ? null : props.children;
+};
+
 class SceneUI extends Component {
   static propTypes = {
     intl: PropTypes.object,
@@ -34,7 +39,8 @@ class SceneUI extends Component {
     showCreateRoom: PropTypes.bool,
     unavailable: PropTypes.bool,
     isOwner: PropTypes.bool,
-    parentScene: PropTypes.object
+    parentScene: PropTypes.object,
+    hideUI: PropTypes.string
   };
 
   state = {
@@ -219,65 +225,71 @@ class SceneUI extends Component {
         >
           {this.state.showScreenshot && <img src={this.props.sceneScreenshotURL} />}
         </div>
-        <div className={styles.grid}>
-          <div className={styles.mainPanel}>
-            <a href="/" className={styles.logo}>
-              <AppLogo />
-            </a>
-            <div className={styles.logoTagline}>{configs.translation("app-tagline")}</div>
-            <div className={styles.scenePreviewButtonWrapper}>
-              {this.props.showCreateRoom && (
-                <button className={styles.scenePreviewButton} onClick={this.createRoom}>
-                  <FormattedMessage id="scene-page.create-button" defaultMessage="Create a room with this scene" />
-                </button>
-              )}
-              <IfFeature name="enable_spoke">
-                {isOwner && sceneProjectId ? (
-                  <a
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href={getReticulumFetchUrl(`/spoke/projects/${sceneProjectId}`)}
-                    className={styles.scenePreviewButton}
-                  >
-                    <Pen />
-                    <FormattedMessage
-                      id="scene-page.edit-button"
-                      defaultMessage="Edit in {editorName}"
-                      values={{ editorName: configs.translation("editor-name") }}
-                    />
-                  </a>
-                ) : (
-                  sceneAllowRemixing && (
+        <IfRenderUi hide={this.props.hideUI}>
+          <div className={styles.grid}>
+            <div className={styles.mainPanel}>
+              <a href="/" className={styles.logo}>
+                <AppLogo />
+              </a>
+              <div className={styles.logoTagline}>{configs.translation("app-tagline")}</div>
+              <div className={styles.scenePreviewButtonWrapper}>
+                {this.props.showCreateRoom && (
+                  <button className={styles.scenePreviewButton} onClick={this.createRoom}>
+                    <FormattedMessage id="scene-page.create-button" defaultMessage="Create a room with this scene" />
+                  </button>
+                )}
+                <IfFeature name="enable_spoke">
+                  {isOwner && sceneProjectId ? (
                     <a
                       target="_blank"
                       rel="noopener noreferrer"
-                      href={getReticulumFetchUrl(`/spoke/projects/new?sceneId=${sceneId}`)}
+                      href={getReticulumFetchUrl(`/spoke/projects/${sceneProjectId}`)}
                       className={styles.scenePreviewButton}
                     >
-                      <CodeBranch />
+                      <Pen />
                       <FormattedMessage
-                        id="scene-page.remix-button"
-                        defaultMessage="Remix in {editorName}"
+                        id="scene-page.edit-button"
+                        defaultMessage="Edit in {editorName}"
                         values={{ editorName: configs.translation("editor-name") }}
                       />
                     </a>
-                  )
-                )}
-              </IfFeature>
-              <a href={tweetLink} rel="noopener noreferrer" target="_blank" className={styles.scenePreviewButton}>
-                <Twitter />
-                <div>
-                  <FormattedMessage id="scene-page.tweet-button" defaultMessage="Share on Twitter" />
-                </div>
-              </a>
+                  ) : (
+                    sceneAllowRemixing && (
+                      <a
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href={getReticulumFetchUrl(`/spoke/projects/${sceneProjectId}`)}
+                        className={styles.scenePreviewButton}
+                      >
+                        <Pen />
+                        <FormattedMessage
+                          id="scene-page.edit-button"
+                          defaultMessage="Edit in {editorName}"
+                          values={{ editorName: configs.translation("editor-name") }}
+                        />
+                      </a>
+                    )
+                  )}
+                </IfFeature>
+                <a href={tweetLink} rel="noopener noreferrer" target="_blank" className={styles.scenePreviewButton}>
+                  <Twitter />
+                  <div>
+                    <FormattedMessage id="scene-page.tweet-button" defaultMessage="Share on Twitter" />
+                  </div>
+                </a>
+              </div>
+            </div>
+            <div className={styles.info}>
+              <div className={styles.name}>{this.props.sceneName}</div>
+              <div className={styles.attribution}>{attributions}</div>
             </div>
           </div>
           <div className={styles.info}>
             <div className={styles.name}>{this.props.sceneName}</div>
             <div className={styles.attribution}>{attributions}</div>
           </div>
-        </div>
-        <ResizeHookWrapper store={this.props.store} scene={this.props.scene} />
+          <ResizeHookWrapper store={this.props.store} scene={this.props.scene} />
+        </IfRenderUi>
       </div>
     );
   }
