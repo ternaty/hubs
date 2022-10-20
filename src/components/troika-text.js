@@ -3,7 +3,7 @@
 // by @jamesckane at Paradowski Creative (paradowski.com)
 
 import { Text } from "troika-three-text";
-import defaultFont from "./../assets/fonts/mulish-v3-latin-regular.woff";
+import defaultFont from "./../assets/fonts/CalSans-SemiBold.woff";
 
 // Mark this type of object so we can filter in from our shader patching
 Text.prototype.isTroikaText = true;
