@@ -502,14 +502,13 @@ class MediaBrowserContainer extends Component {
         entries.length > 0 ||
         !showEmptyStringOnNoResult ? (
           <>
-            {/* TODO: Enable RPM */}
-            {/* {urlSource === "avatars" && (
+            {urlSource === "avatars" && (
               <ReadyPlayerMeTile
                 type="avatar"
                 onClick={this.onCreateReadyPlayerMeAvatar}
                 label={<FormattedMessage id="media-browser.create-avatar" defaultMessage="Create Avatar" />}
               />
-            )} */}
+            )}
             {urlSource === "avatars" && this.props.hubChannel && this.props.hubChannel.can("pin_objects") && (
               <UploadTile
                 type="avatar"

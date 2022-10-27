@@ -11,10 +11,13 @@ import { FullscreenLayout } from "../layout/FullscreenLayout";
 import { Row } from "../layout/Row";
 import { Column } from "../layout/Column";
 import { proxiedUrlFor } from "../../utils/media-url-utils";
+import configs from "../../utils/configs";
 
 export function AvatarReadyPlayerMe({ store, onClose, closeMediaBrowser, isIndependentDialog = true }) {
-  const iframeURL = "https://demo.readyplayer.me/avatar?frameApi&bodyType=halfbody";
+  const iframeURL = "https://ternaty.readyplayer.me";
+  // const iframeURL = "https://ternaty.readyplayer.me/avatar?frameApi&bodyType=halfbody"; // frame API https://docs.readyplayer.me/ready-player-me/integration-guides/web
   const [accepted, setAccepted] = useState(false);
+  const companyName = configs.translation("company-name") || "Company-Name";
 
   const closeBack = useCallback(
     (evt, isSuccess = false) => {
@@ -88,7 +91,7 @@ export function AvatarReadyPlayerMe({ store, onClose, closeMediaBrowser, isIndep
             <p>
               <FormattedMessage
                 id="avatar.readyplayerme.dialog.notice.infoTerms"
-                defaultMessage="We will now redirect you to ReadyPlayerMe for the creation of your avatar. Here you can find RPM's <a1>privacy policy</a1> and <a2>terms of use</a2>. After creating the avatar, the avatar data will be delivered back to farvel."
+                defaultMessage="We will now redirect you to ReadyPlayerMe for the creation of your avatar. Here you can find RPM's <a1>privacy policy</a1> and <a2>terms of use</a2>. After creating the avatar, the avatar data will be delivered back to {organisation}."
                 values={{
                   // eslint-disable-next-line react/display-name
                   a1: chunks => (
@@ -111,7 +114,8 @@ export function AvatarReadyPlayerMe({ store, onClose, closeMediaBrowser, isIndep
                     >
                       {chunks}
                     </a>
-                  )
+                  ),
+                  organisation: companyName
                 }}
               />
             </p>

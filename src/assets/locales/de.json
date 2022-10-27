@@ -58,7 +58,7 @@
   "avatar-url-modal.custom-avatar-docs-link": "Erfahre mehr über benutzerdefinierte Avatare",
   "avatar.readyplayerme.dialog.notice.acceptBtn": "Ja, einverstanden.",
   "avatar.readyplayerme.dialog.notice.infoAccept": "Wenn du den Button \"Ja, einverstanden\" klickst, dann erklärst du dich damit einverstanden.",
-  "avatar.readyplayerme.dialog.notice.infoTerms": "Wir leiten dich jetzt weiter an ReadyPlayerMe um deinen Avatar zu erstellen. Hier findest du die <a1>Datenschutzerklärung</a1> und die <a2>Nutzungsbedingungen</a2> von ReadyPlayerMe. Nach der Erstellung des Avatars werden die Avatar-Daten zurück an farvel geliefert.",
+  "avatar.readyplayerme.dialog.notice.infoTerms": "Wir leiten dich jetzt weiter an ReadyPlayerMe um deinen Avatar zu erstellen. Hier findest du die <a1>Datenschutzerklärung</a1> und die <a2>Nutzungsbedingungen</a2> von ReadyPlayerMe. Nach der Erstellung des Avatars werden die Avatar-Daten zurück an {organisation} geliefert.",
   "avatar.readyplayerme.dialog.title": "Erstelle einen Avatar",
   "back-button": "Zurück",
   "button.accept": "Akzeptieren",
