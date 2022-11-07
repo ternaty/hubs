@@ -1655,7 +1655,7 @@ class UIRoot extends Component {
                         });
                       }}
                     /> */}
-                    {entered && (
+                    {entered && (APP.introModalSettings ? true : false) && (
                       <ToolbarButton
                         icon={<InfoIcon />}
                         label={
