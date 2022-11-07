@@ -613,3 +613,7 @@ AFRAME.GLTFModelPlus.registerComponent("farvel-frame", "farvel-frame", (el, _com
   window.APP["farvelFrame"] = componentData;
 });
 //mike-frame-end
+
+AFRAME.GLTFModelPlus.registerComponent("intro-modal", "intro-modal", (el, componentName, componentData) => {
+  APP.introModalSettings = componentData;
+});

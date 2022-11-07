@@ -164,7 +164,8 @@ export const SCHEMA = {
         cursorSize: { type: "number", default: 1 },
         nametagVisibility: { type: "string", default: "showAll" },
         nametagVisibilityDistance: { type: "number", default: 5 },
-        avatarVoiceLevels: { type: "object" }
+        avatarVoiceLevels: { type: "object" },
+        skipIframeIntroductionModal: { type: "bool", default: false }
       }
     },
 
