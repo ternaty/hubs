@@ -8,6 +8,7 @@ import { updateAudioSettings } from "./update-audio-settings";
 import { renderAsEntity } from "./utils/jsx-entity";
 import { Networked } from "./bit-components";
 import { addComponent } from "bitecs";
+import { themes } from "./utils/theme";
 
 AFRAME.GLTFModelPlus.registerComponent("duck", "duck", el => {
   el.setAttribute("duck", "");
@@ -616,4 +617,16 @@ AFRAME.GLTFModelPlus.registerComponent("farvel-frame", "farvel-frame", (el, _com
 
 AFRAME.GLTFModelPlus.registerComponent("intro-modal", "intro-modal", (el, componentName, componentData) => {
   APP.introModalSettings = componentData;
+});
+
+AFRAME.GLTFModelPlus.registerComponent("theme-per-scene", "theme-per-scene", (el, componentName, componentData) => {
+  const previousThemeID = JSON.parse(localStorage.getItem("___hubs_store")).preferences.theme;
+  const themeCheck = themes.find(theme => theme.id === componentData.themeId);
+  if (themeCheck)
+    APP.store.update({
+      preferences: {
+        theme: componentData.themeId,
+        themePerScenePreviousValue: previousThemeID == undefined ? "undefined" : previousThemeID
+      }
+    });
 });

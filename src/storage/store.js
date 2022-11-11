@@ -14,7 +14,7 @@ import { fetchRandomDefaultAvatarId, generateRandomName } from "../utils/identit
 import { NO_DEVICE_ID } from "../utils/media-devices-utils.js";
 import { getDefaultTheme } from "../utils/theme.js";
 
-const defaultMaterialQuality = (function() {
+const defaultMaterialQuality = (function () {
   const MATERIAL_QUALITY_OPTIONS = ["low", "medium", "high"];
 
   // HACK: AFRAME is not available on all pages, so we catch the ReferenceError.
@@ -157,6 +157,7 @@ export const SCHEMA = {
         audioClippingThreshold: { type: "number", default: 0.015 },
         audioPanningQuality: { type: "string", default: defaultAudioPanningQuality() },
         theme: { type: "string", default: getDefaultTheme()?.name },
+        themePerScenePreviousValue: { type: "string", default: undefined },
         tmpMutedGlobalMediaVolume: { type: "number" },
         tmpMutedGlobalVoiceVolume: { type: "number" },
         tmpMutedGlobalSFXVolume: { type: "number" },
@@ -352,6 +353,8 @@ export default class Store extends EventTarget {
 
     // Restore audio settings, if user left while having environment audio temporarily muted.
     this.restoreAudioSettingsFromBeingMuted();
+    // restore previous theme if has been change by scene
+    this.restoreOriginalThemePreferences();
   };
 
   resetToRandomDefaultAvatar = async () => {
@@ -389,6 +392,16 @@ export default class Store extends EventTarget {
           tmpMutedGlobalSFXVolume: undefined
         }
       });
+    }
+  };
+
+  restoreOriginalThemePreferences = async () => {
+    if (this.state.preferences.themePerScenePreviousValue) {
+      const prev =
+        this.state.preferences.themePerScenePreviousValue === "undefined"
+          ? undefined
+          : this.state.preferences.themePerScenePreviousValue;
+      this.update({ preferences: { theme: prev, themePerScenePreviousValue: undefined } });
     }
   };
 
