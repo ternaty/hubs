@@ -633,7 +633,7 @@ class UIRoot extends Component {
     }
 
     // ternaty introduction modal (via iframe)
-    if (!this.props.store.state.preferences.skipIframeIntroductionModal) {
+    if (APP.introModalSettings && !this.props.store.state.preferences.skipIframeIntroductionModal) {
       this.showNonHistoriedDialog(IFrameIntroductionModal, {
         scene: this.props.scene,
         store: this.props.store
