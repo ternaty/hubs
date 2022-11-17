@@ -61,7 +61,7 @@ For Spoke deployment, please follow this tutorial on a new file, please use this
 
 import { createImageTexture } from "../utils/media-utils";
 import { TextureCache } from "../utils/texture-cache";
-import defaultFrame from "../assets/models/DefaultFarvelPictureFrame.glb";
+import defaultFrame from "../assets/models/DefaultPictureFrame.glb";
 
 AFRAME.registerComponent("farvel-frame", {
   schema: {
