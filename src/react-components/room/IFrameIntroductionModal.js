@@ -27,10 +27,7 @@ export function IFrameIntroductionModal({ store, onClose }) {
       className={styles.modal}
     >
       <Column padding center className={styles.content}>
-        <iframe
-          src={APP.introModalSettings.href + APP.introModalSettings.langProperty.replace("{lang}", getLocale())}
-          className={styles.iframe}
-        />
+        <iframe src={APP.introModalSettings.href.replace("{lang}", getLocale())} className={styles.iframe} />
         <div className="checkbox-container">
           <input
             id="checkbox-dont-show-again"
