@@ -67,8 +67,9 @@ const onReady = async () => {
 
   const sceneId = qs.get("scene_id") || document.location.pathname.substring(1).split("/")[1];
   console.log(`Scene ID: ${sceneId}`);
+  const hideUI = qs.get("hide_ui");
 
-  let uiProps = { sceneId: sceneId };
+  let uiProps = { sceneId: sceneId, hideUI: hideUI };
 
   mountUI(scene);
 

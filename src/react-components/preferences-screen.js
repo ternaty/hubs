@@ -21,6 +21,7 @@ import {
   getScreenResolutionHeight,
   setMaxResolution
 } from "../utils/screen-orientation-utils";
+import { CAMERA_MODE_THIRD_PERSON_VIEW, CAMERA_MODE_FIRST_PERSON } from "../systems/camera-system";
 
 import dropdownArrowUrl from "../assets/images/dropdown_arrow.png";
 import dropdownArrow2xUrl from "../assets/images/dropdown_arrow@2x.png";
@@ -451,6 +452,10 @@ const preferenceLabels = defineMessages({
     id: "preferences-screen.preference.enable-dynamic-shadows",
     defaultMessage: "Enable Real-time Shadows"
   },
+  enableThirdPersonView: {
+    id: "preferences-screen.preference.enable-third-person-view",
+    defaultMessage: "Enable Third-Person View"
+  },
   disableAutoPixelRatio: {
     id: "preferences-screen.preference.disable-auto-pixel-ratio",
     defaultMessage: "Disable automatic pixel ratio adjustments"
@@ -498,6 +503,10 @@ const preferenceLabels = defineMessages({
   lazyLoadSceneMedia: {
     id: "preferences-screen.preference.lazy-load-scene-media",
     defaultMessage: "Enable Scene Media Lazy Loading"
+  },
+  skipEntryTutorial: {
+    id: "preferences-screen.preference.skipEntryTutorial",
+    defaultMessage: "Skip video tutorial on entry"
   },
   disableLeftRightPanning: {
     id: "preferences-screen.preference.disable-panning",
@@ -907,6 +916,10 @@ class PreferencesScreen extends Component {
     if (preferredMic !== this.mediaDevicesManager.selectedMicDeviceId) {
       this.mediaDevicesManager.startMicShare({ updatePrefs: false }).then(this.updateMediaDevices);
     }
+    const { enableThirdPersonView } = this.props.store.state.preferences;
+    this.props.scene.systems["hubs-systems"].cameraSystem.setMode(
+      enableThirdPersonView ? CAMERA_MODE_THIRD_PERSON_VIEW : CAMERA_MODE_FIRST_PERSON
+    );
   }
 
   createSections() {
@@ -1109,6 +1122,11 @@ class PreferencesScreen extends Component {
             prefType: PREFERENCE_LIST_ITEM_TYPE.SELECT,
             options: availableThemes
           },
+          {
+            key: "skipEntryTutorial",
+            prefType: PREFERENCE_LIST_ITEM_TYPE.CHECK_BOX,
+            defaultBool: false
+          },
           { key: "maxResolution", prefType: PREFERENCE_LIST_ITEM_TYPE.MAX_RESOLUTION },
           {
             key: "nametagVisibility",
@@ -1190,6 +1208,11 @@ class PreferencesScreen extends Component {
           },
           {
             key: "enableDynamicShadows",
+            prefType: PREFERENCE_LIST_ITEM_TYPE.CHECK_BOX,
+            defaultBool: false
+          },
+          {
+            key: "enableThirdPersonView",
             prefType: PREFERENCE_LIST_ITEM_TYPE.CHECK_BOX,
             defaultBool: false
           },

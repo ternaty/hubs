@@ -61,6 +61,7 @@ declare module "aframe" {
     gainSystem: GainSystem;
     environmentSystem: EnvironmentSystem;
     nameTagSystem: NameTagVisibilitySystem;
+    farvelFrameSys: FarvelFrameSys;
 
     DOMContentDidLoad: bool;
   }

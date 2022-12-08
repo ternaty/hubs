@@ -1,0 +1,22 @@
+@use "../styles/theme.scss";
+
+:local(.controls-overview-modal) {
+    max-width: 960px;
+
+    @media(max-width: theme.$breakpoint-lg - 1),
+    (max-height: theme.$breakpoint-vr - 1) {
+        max-width: none;
+    }
+}
+
+:local(.content) {
+    flex: 1;
+}
+
+:local(.iframe) {
+    width: 100%;
+    min-height: 630px;
+    // max-height: 100%;
+    border: 0;
+    flex: 1;
+}

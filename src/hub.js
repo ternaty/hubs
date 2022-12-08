@@ -181,6 +181,11 @@ import "./systems/audio-gain-system";
 
 import "./gltf-component-mappings";
 
+//mike-frame
+import "./components/farvel-frame.js";
+import "./components/toggle-frame-button";
+//mike-frame-end
+
 import { App } from "./app";
 import MediaDevicesManager from "./utils/media-devices-manager";
 import PinningHelper from "./utils/pinning-helper";

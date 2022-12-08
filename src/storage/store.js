@@ -14,7 +14,7 @@ import { fetchRandomDefaultAvatarId, generateRandomName } from "../utils/identit
 import { NO_DEVICE_ID } from "../utils/media-devices-utils.js";
 import { getDefaultTheme } from "../utils/theme.js";
 
-const defaultMaterialQuality = (function() {
+const defaultMaterialQuality = (function () {
   const MATERIAL_QUALITY_OPTIONS = ["low", "medium", "high"];
 
   // HACK: AFRAME is not available on all pages, so we catch the ReferenceError.
@@ -63,7 +63,7 @@ export const SCHEMA = {
       type: "object",
       additionalProperties: false,
       properties: {
-        displayName: { type: "string", pattern: "^[A-Za-z0-9_~ -]{3,32}$" },
+        displayName: { type: "string", pattern: "^[A-Za-z0-9_~ -]{3,32}$" }, // TODO and Marker for FARM-254
         avatarId: { type: "string" },
         // personalAvatarId is obsolete, but we need it here for backwards compatibility.
         personalAvatarId: { type: "string" }
@@ -93,7 +93,8 @@ export const SCHEMA = {
         hasScaled: { type: "boolean" },
         hasHoveredInWorldHud: { type: "boolean" },
         hasOpenedShare: { type: "boolean" },
-        entryCount: { type: "number" }
+        entryCount: { type: "number" },
+        hasAcceptedRpmAvatarNotice: { type: "boolean" }
       }
     },
 
@@ -135,8 +136,9 @@ export const SCHEMA = {
         globalVoiceVolume: { type: "number", default: 100 },
         globalMediaVolume: { type: "number", default: 100 },
         globalSFXVolume: { type: "number", default: 100 },
-        snapRotationDegrees: { type: "number", default: 45 },
+        snapRotationDegrees: { type: "number", default: 20 }, // changed from 45 to 20 for farvel
         materialQualitySetting: { type: "string", default: defaultMaterialQuality },
+        enableThirdPersonView: { type: "bool", default: false },
         enableDynamicShadows: { type: "bool", default: false },
         disableSoundEffects: { type: "bool", default: false },
         disableMovement: { type: "bool", default: false },
@@ -155,10 +157,16 @@ export const SCHEMA = {
         audioClippingThreshold: { type: "number", default: 0.015 },
         audioPanningQuality: { type: "string", default: defaultAudioPanningQuality() },
         theme: { type: "string", default: getDefaultTheme()?.name },
+        themePerScenePreviousValue: { type: "string", default: undefined },
+        tmpMutedGlobalMediaVolume: { type: "number" },
+        tmpMutedGlobalVoiceVolume: { type: "number" },
+        tmpMutedGlobalSFXVolume: { type: "number" },
+        skipEntryTutorial: { type: "bool" },
         cursorSize: { type: "number", default: 1 },
         nametagVisibility: { type: "string", default: "showAll" },
         nametagVisibilityDistance: { type: "number", default: 5 },
-        avatarVoiceLevels: { type: "object" }
+        avatarVoiceLevels: { type: "object" },
+        skipIframeIntroductionModal: { type: "bool", default: false }
       }
     },
 
@@ -306,11 +314,35 @@ export default class Store extends EventTarget {
   };
 
   initProfile = async () => {
+    const avatarIdQueryString = qsGet("avatar_id");
+    const displayNameQueryString = qsGet("display_name");
+
     if (this._shouldResetAvatarOnInit) {
       await this.resetToRandomDefaultAvatar();
+    } else if (avatarIdQueryString) {
+      this.update({ profile: { avatarId: avatarIdQueryString } });
     } else {
       this.update({
         profile: { avatarId: await fetchRandomDefaultAvatarId(), ...(this.state.profile || {}) }
+      });
+    }
+
+    if (displayNameQueryString) {
+      this.update({
+        activity: {
+          hasChangedName: true
+        },
+        profile: {
+          displayName: displayNameQueryString
+        }
+      });
+    }
+
+    if (avatarIdQueryString && displayNameQueryString) {
+      this.update({
+        activity: {
+          hasAcceptedProfile: true
+        }
       });
     }
 
@@ -318,12 +350,59 @@ export default class Store extends EventTarget {
     if (!this.state.activity.hasChangedName) {
       this.update({ profile: { displayName: generateRandomName() } });
     }
+
+    // Restore audio settings, if user left while having environment audio temporarily muted.
+    this.restoreAudioSettingsFromBeingMuted();
+    // restore previous theme if has been change by scene
+    this.restoreOriginalThemePreferences();
   };
 
   resetToRandomDefaultAvatar = async () => {
     this.update({
       profile: { ...(this.state.profile || {}), avatarId: await fetchRandomDefaultAvatarId() }
     });
+  };
+
+  restoreAudioSettingsFromBeingMuted = async () => {
+    if (
+      this.state.preferences.tmpMutedGlobalMediaVolume ||
+      this.state.preferences.tmpMutedGlobalVoiceVolume ||
+      this.state.preferences.tmpMutedGlobalSFXVolume
+    ) {
+      const media =
+        this.state.preferences.tmpMutedGlobalMediaVolume == 100
+          ? undefined
+          : this.state.preferences.tmpMutedGlobalMediaVolume;
+      const voice =
+        this.state.preferences.tmpMutedGlobalVoiceVolume == 100
+          ? undefined
+          : this.state.preferences.tmpMutedGlobalVoiceVolume;
+      const sfx =
+        this.state.preferences.tmpMutedGlobalSFXVolume == 100
+          ? undefined
+          : this.state.preferences.tmpMutedGlobalSFXVolume;
+
+      this.update({
+        preferences: {
+          globalMediaVolume: media,
+          globalVoiceVolume: voice,
+          globalSFXVolume: sfx,
+          tmpMutedGlobalMediaVolume: undefined,
+          tmpMutedGlobalVoiceVolume: undefined,
+          tmpMutedGlobalSFXVolume: undefined
+        }
+      });
+    }
+  };
+
+  restoreOriginalThemePreferences = async () => {
+    if (this.state.preferences.themePerScenePreviousValue) {
+      const prev =
+        this.state.preferences.themePerScenePreviousValue === "undefined"
+          ? undefined
+          : this.state.preferences.themePerScenePreviousValue;
+      this.update({ preferences: { theme: prev, themePerScenePreviousValue: undefined } });
+    }
   };
 
   get state() {

@@ -1,6 +1,6 @@
 /* global performance THREE AFRAME NAF MediaStream setTimeout */
 import configs from "../utils/configs";
-import audioIcon from "../assets/images/audio.png";
+import audioIcon from "../assets/images/audio_farvel.png";
 import { paths } from "../systems/userinput/paths";
 import HLS from "hls.js";
 import { MediaPlayer } from "dashjs";
@@ -200,14 +200,14 @@ AFRAME.registerComponent("media-video", {
 
   seekForward() {
     if (!this.videoIsLive && this.ensureOwned()) {
-      this.video.currentTime += 30;
+      this.video.currentTime += 15;
       this.el.setAttribute("media-video", "time", this.video.currentTime);
     }
   },
 
   seekBack() {
     if (!this.videoIsLive && this.ensureOwned()) {
-      this.video.currentTime -= 10;
+      this.video.currentTime -= 15;
       this.el.setAttribute("media-video", "time", this.video.currentTime);
     }
   },
@@ -482,6 +482,8 @@ AFRAME.registerComponent("media-video", {
     }
 
     if (!texture.isVideoTexture) {
+      // this.mesh.material.transparent = true; // have transparency for farvel audio icon texture (rounded)
+      this.mesh.material.alphaTest = 0.5; // using mask mode instead of blend mode
       this.mesh.material.map = audioIconTexture;
     } else {
       this.mesh.material.map = texture;

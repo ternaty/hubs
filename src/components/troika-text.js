@@ -3,6 +3,7 @@
 // by @jamesckane at Paradowski Creative (paradowski.com)
 
 import { Text } from "troika-three-text";
+import defaultFont from "./../assets/fonts/CalSans-SemiBold.woff";
 
 // Mark this type of object so we can filter in from our shader patching
 Text.prototype.isTroikaText = true;
@@ -59,7 +60,7 @@ AFRAME.registerComponent("text", {
     direction: { type: "string", default: "auto", oneOf: ["auto", "ltr", "rtl"] },
     fillOpacity: { type: "number", default: 1 },
     // This is different from the Troika preoperty name, Using "fontUrl" to prevent conflict with previous "font" property and to allow us to make named fonts later
-    fontUrl: { type: "string" },
+    fontUrl: { type: "string", default: defaultFont }, // farvel: fontUrl: { type: "string", default: defaultFont },
     // This default value differs from the Troika default of 0.1, it most closely matches the size of our previous text component.
     fontSize: { type: "number", default: 0.075 },
     letterSpacing: { type: "number", default: 0 },

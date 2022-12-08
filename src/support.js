@@ -8,12 +8,14 @@ We also do not support localization in this file, since it would require additio
 and polyfilling.
 */
 
+import "./utils/record-log"; // included to capture earliest log entries
 import React from "react";
 import ReactDOM from "react-dom";
 import copy from "copy-to-clipboard";
 import { detectOS } from "detect-browser";
 import "./react-components/styles/global.scss";
 import styles from "./assets/stylesheets/support.scss";
+import configs from "./utils/configs";
 
 const SHORTHAND_INITIALIZER = "var foo = 'bar'; var baz = { foo };";
 const SPREAD_SYNTAX = "var foo = {}; var baz = { ...foo };";
@@ -53,7 +55,11 @@ function isInAppBrowser() {
   // Mozilla/5.0 (Linux; Android 9; SM-G950U1 Build/PPR1.180610.011; wv) AppleWebKit/537.36 (KHTML, like Gecko)
   // Version/4.0 Chrome/80.0.3987.149 Mobile Safari/537.36 [FB_IAB/FB4A;FBAV/262.0.0.34.117;]
   const detectedOS = detectOS(navigator.userAgent);
-  return (detectedOS === "iOS" && !navigator.mediaDevices) || /\bfb_iab\b/i.test(navigator.userAgent);
+  return (
+    (detectedOS === "iOS" && !navigator.mediaDevices) ||
+    /\bfb_iab\b/i.test(navigator.userAgent) ||
+    /\bInstagram\b/i.test(navigator.userAgent)
+  );
 }
 
 export function platformUnsupported() {
@@ -86,7 +92,7 @@ class Support extends React.Component {
     return (
       <div className={styles.supportMain}>
         <div className={styles.supportContent}>
-          <h1>Mozilla Hubs</h1>
+          <h1>{configs.translation("app-name")}</h1>
           <br />
           <p className={styles.unsupportedLangs}>
             · <span>Unsupported</span> · <span>No Soportado</span> · <span>Nicht Unterstützt</span>

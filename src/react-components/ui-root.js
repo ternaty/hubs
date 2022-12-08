@@ -33,6 +33,7 @@ import PreferencesScreen from "./preferences-screen.js";
 import PresenceLog from "./presence-log.js";
 import PreloadOverlay from "./preload-overlay.js";
 import RTCDebugPanel from "./debug-panel/RtcDebugPanel.js";
+import SaveConsoleLog from "../utils/record-log.js";
 import { showFullScreenIfAvailable, showFullScreenIfWasFullScreen } from "../utils/fullscreen";
 import { handleExitTo2DInterstitial, exit2DInterstitialAndEnterVR, isIn2DInterstitial } from "../utils/vr-interstitial";
 import maskEmail from "../utils/mask-email";
@@ -69,16 +70,22 @@ import { ReactComponent as VRIcon } from "./icons/VR.svg";
 import { ReactComponent as LeaveIcon } from "./icons/Leave.svg";
 import { ReactComponent as EnterIcon } from "./icons/Enter.svg";
 import { ReactComponent as InviteIcon } from "./icons/Invite.svg";
+import { ReactComponent as ControlsIcon } from "./icons/Controls.svg";
+import { ReactComponent as FeedbackIcon } from "./icons/Feedback.svg";
+import { ReactComponent as LinkIcon } from "./icons/Link.svg";
+import { ReactComponent as InfoIcon } from "./icons/Info.svg";
 import { PeopleSidebarContainer, userFromPresence } from "./room/PeopleSidebarContainer";
 import { ObjectListProvider } from "./room/useObjectList";
 import { ObjectsSidebarContainer } from "./room/ObjectsSidebarContainer";
 import { ObjectMenuContainer } from "./room/ObjectMenuContainer";
 import { useCssBreakpoints } from "react-use-css-breakpoints";
 import { PlacePopoverContainer } from "./room/PlacePopoverContainer";
+import { FollowUsPopoverContainer } from "./room/FollowUsPopoverContainer";
 import { SharePopoverContainer } from "./room/SharePopoverContainer";
 import { AudioPopoverContainer } from "./room/AudioPopoverContainer";
 import { ReactionPopoverContainer } from "./room/ReactionPopoverContainer";
 import { SafariMicModal } from "./room/SafariMicModal";
+import { IFrameIntroductionModal } from "./room/IFrameIntroductionModal";
 import { RoomSignInModalContainer } from "./auth/RoomSignInModalContainer";
 import { SignInStep } from "./auth/SignInModal";
 import { LeaveReason, LeaveRoomModal } from "./room/LeaveRoomModal";
@@ -93,6 +100,8 @@ import { TweetModalContainer } from "./room/TweetModalContainer";
 import { TipContainer, FullscreenTip } from "./room/TipContainer";
 import { SpectatingLabel } from "./room/SpectatingLabel";
 import { SignInMessages } from "./auth/SignInModal";
+import { TutorialControlsModal } from "./room/TutorialControlsModal";
+import { ControlsOverviewModal } from "./room/ControlsOverviewModal";
 import { MediaDevicesEvents } from "../utils/media-devices-utils";
 import { TERMS, PRIVACY } from "../constants";
 import { ECSDebugSidebarContainer } from "./debug-panel/ECSSidebar";
@@ -622,6 +631,14 @@ class UIRoot extends Component {
     if (this.mediaDevicesManager.isVideoShared) {
       console.log("Screen sharing enabled.");
     }
+
+    // ternaty introduction modal (via iframe)
+    if (APP.introModalSettings && !this.props.store.state.preferences.skipIframeIntroductionModal) {
+      this.showNonHistoriedDialog(IFrameIntroductionModal, {
+        scene: this.props.scene,
+        store: this.props.store
+      });
+    }
   };
 
   attemptLink = async () => {
@@ -806,7 +823,13 @@ class UIRoot extends Component {
           roomName={this.props.hub.name}
           showJoinRoom={!this.state.waitingOnAudio && !this.props.entryDisallowed}
           onJoinRoom={() => {
-            if (promptForNameAndAvatarBeforeEntry || !this.props.forcedVREntryType) {
+            if (
+              false // TODO: Skip this for now
+              // this.props.store.state.preferences.skipEntryTutorial == undefined ||
+              // this.props.store.state.preferences.skipEntryTutorial == false
+            ) {
+              this.pushHistoryState("entry_step", "tutorial_controls");
+            } else if (promptForNameAndAvatarBeforeEntry || !this.props.forcedVREntryType) {
               this.setState({ entering: true });
               this.props.hubChannel.sendEnteringEvent();
 
@@ -1006,6 +1029,8 @@ class UIRoot extends Component {
     const displayNameOverride = this.props.hubIsBound
       ? getPresenceProfileForSession(this.props.presences, this.props.sessionId).displayName
       : null;
+    const { hasAcceptedProfile, hasChangedName } = this.props.store.state.activity;
+    const promptForNameAndAvatarBeforeEntry = this.props.hubIsBound ? !hasAcceptedProfile : !hasChangedName;
 
     const enableSpectateVRButton =
       configs.feature("enable_lobby_ghosts") &&
@@ -1024,6 +1049,27 @@ class UIRoot extends Component {
         />
       ) : (
         <>
+          <StateRoute stateKey="entry_step" stateValue="tutorial_controls" history={this.props.history}>
+            <TutorialControlsModal
+              onBack={() => this.props.history.goBack()}
+              onContinue={() => {
+                if (promptForNameAndAvatarBeforeEntry || !this.props.forcedVREntryType) {
+                  this.setState({ entering: true });
+                  this.props.hubChannel.sendEnteringEvent();
+
+                  if (promptForNameAndAvatarBeforeEntry) {
+                    this.pushHistoryState("entry_step", "profile");
+                  } else {
+                    this.onRequestMicPermission();
+                    this.pushHistoryState("entry_step", "audio");
+                  }
+                } else {
+                  this.handleForceEntry();
+                }
+              }}
+              store={this.props.store}
+            />
+          </StateRoute>
           <StateRoute stateKey="entry_step" stateValue="device" history={this.props.history}>
             {this.renderDevicePanel()}
           </StateRoute>
@@ -1049,10 +1095,12 @@ class UIRoot extends Component {
                   }
                 }}
                 showBackButton
-                onBack={() => this.pushHistoryState()}
+                //onBack={() => this.pushHistoryState()} // did change to following line, why is this other than other entry dialogs?
+                onBack={() => this.props.history.goBack()}
                 store={this.props.store}
                 mediaSearchStore={this.props.mediaSearchStore}
                 avatarId={props.location.state.detail && props.location.state.detail.avatarId}
+                showNonHistoriedDialog={this.showNonHistoriedDialog}
               />
             )}
           />
@@ -1168,6 +1216,18 @@ class UIRoot extends Component {
               icon: InviteIcon,
               onClick: () => this.props.scene.emit("action_invite")
             },
+          // (this.props.breakpoint === "sm" || this.props.breakpoint === "md") && {
+          //   id: "follow",
+          //   label: <FormattedMessage id="more-menu.follow" defaultMessage="Follow" />,
+          //   icon: LinkIcon,
+          //   onClick: () => this.props.scene.emit("action_followUs")
+          // },
+          (this.props.breakpoint === "sm" || this.props.breakpoint === "md") && {
+            id: "feedback",
+            label: <FormattedMessage id="more-menu.feedback" defaultMessage="Feedback" />,
+            icon: FeedbackIcon,
+            onClick: () => (window.location.href = "mailto:hi@ternaty.com") // TODO: find a better solution: form?
+          },
           this.isFavorited()
             ? {
                 id: "unfavorite-room",
@@ -1239,6 +1299,12 @@ class UIRoot extends Component {
             label: <FormattedMessage id="more-menu.report-issue" defaultMessage="Report Issue" />,
             icon: WarningCircleIcon,
             href: configs.link("issue_report", "https://hubs.mozilla.com/docs/help.html")
+          },
+          qsTruthy("record_log") && {
+            id: "save-console-logs",
+            label: <FormattedMessage id="more-menu.save-console-logs" defaultMessage="Save Logs" />,
+            icon: SupportIcon,
+            onClick: () => SaveConsoleLog()
           },
           entered && {
             id: "start-tour",
@@ -1465,6 +1531,7 @@ class UIRoot extends Component {
                           onClose={() => this.setSidebar(null)}
                           store={this.props.store}
                           mediaSearchStore={this.props.mediaSearchStore}
+                          showNonHistoriedDialog={this.showNonHistoriedDialog}
                         />
                       )}
                       {this.state.sidebarId === "user" && (
@@ -1519,12 +1586,21 @@ class UIRoot extends Component {
                 }
                 modal={this.state.dialog}
                 toolbarLeft={
-                  <InvitePopoverContainer
-                    hub={this.props.hub}
-                    hubChannel={this.props.hubChannel}
-                    scene={this.props.scene}
-                    store={this.props.store}
-                  />
+                  <>
+                    <InvitePopoverContainer
+                      hub={this.props.hub}
+                      hubChannel={this.props.hubChannel}
+                      scene={this.props.scene}
+                      store={this.props.store}
+                    />
+                    {/* <FollowUsPopoverContainer scene={this.props.scene} /> */}
+                    <ToolbarButton
+                      icon={<FeedbackIcon />}
+                      preset="basic"
+                      label={<FormattedMessage id="toolbar.feedback" defaultMessage="Feedback" />}
+                      onClick={() => (window.location.href = "mailto:hi@ternaty.com")} // TODO: find a better solution: form?
+                    />
+                  </>
                 }
                 toolbarCenter={
                   <>
@@ -1557,6 +1633,7 @@ class UIRoot extends Component {
                           hubChannel={this.props.hubChannel}
                           mediaSearchStore={this.props.mediaSearchStore}
                           showNonHistoriedDialog={this.showNonHistoriedDialog}
+                          store={this.props.store}
                         />
                         {this.props.hubChannel.can("spawn_emoji") && (
                           <ReactionPopoverContainer
@@ -1567,6 +1644,32 @@ class UIRoot extends Component {
                       </>
                     )}
                     <ChatToolbarButtonContainer onClick={() => this.toggleSidebar("chat")} />
+                    {/* <ToolbarButton
+                      icon={< ControlsIcon />}
+                      label={<FormattedMessage id="toolbar.controls-overview" defaultMessage="Controls" />}
+                      preset="accent3"
+                      onClick={() => {
+                        this.showNonHistoriedDialog(ControlsOverviewModal, {
+                          scene: this.props.scene,
+                          store: this.props.store
+                        });
+                      }}
+                    /> */}
+                    {entered && (APP.introModalSettings ? true : false) && (
+                      <ToolbarButton
+                        icon={<InfoIcon />}
+                        label={
+                          <FormattedMessage id="toolbar.iframe-introduction-modal" defaultMessage="Introduction" />
+                        }
+                        preset="accent3"
+                        onClick={() => {
+                          this.showNonHistoriedDialog(IFrameIntroductionModal, {
+                            //scene: this.props.scene,
+                            store: this.props.store
+                          });
+                        }}
+                      />
+                    )}
                     {entered && isMobileVR && (
                       <ToolbarButton
                         className={styleUtils.hideLg}

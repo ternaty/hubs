@@ -30,6 +30,9 @@ import { AudioZonesSystem } from "./audio-zones-system";
 import { GainSystem } from "./audio-gain-system";
 import { EnvironmentSystem } from "./environment-system";
 import { NameTagVisibilitySystem } from "./name-tag-visibility-system";
+//mike-frame
+import { FarvelFrameSys } from "./farvel-frame-system";
+//mike-frame-end
 
 // new world
 import { networkSendSystem, networkReceiveSystem } from "./netcode";
@@ -107,6 +110,9 @@ AFRAME.registerSystem("hubs-systems", {
     this.gainSystem = new GainSystem();
     this.environmentSystem = new EnvironmentSystem(this.el);
     this.nameTagSystem = new NameTagVisibilitySystem(this.el);
+    //mike-frame
+    this.farvelFrameSys = new FarvelFrameSys(this.el);
+    //mike-frame-end
 
     window.$S = this;
   },
@@ -218,6 +224,9 @@ export function mainTick(xrFrame: XRFrame, renderer: WebGLRenderer, scene: Scene
   hubsSystems.audioZonesSystem.tick(hubsSystems.el);
   hubsSystems.gainSystem.tick();
   hubsSystems.nameTagSystem.tick();
+  //mike-frame
+  hubsSystems.farvelFrameSys.tick(t, dt);
+  //mike-frame-end
 
   deleteEntitySystem(world, aframeSystems.userinput);
   destroyAtExtremeDistanceSystem(world);

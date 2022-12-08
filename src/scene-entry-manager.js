@@ -26,6 +26,10 @@ import { addComponent, removeEntity } from "bitecs";
 import { MyCameraTool } from "./bit-components";
 import { anyEntityWith } from "./utils/bit-utils";
 
+//mike-frame
+import { guessContentType } from "./utils/media-url-utils";
+//mike-frame-end
+
 export default class SceneEntryManager {
   constructor(hubChannel, authChannel, history) {
     this.hubChannel = hubChannel;
@@ -228,6 +232,36 @@ export default class SceneEntryManager {
           orientation: or
         });
       });
+
+      //mike-frame
+      entity.addEventListener("media-loaded", () => {
+        if (contentOrigin === 1) {
+          let contentStr = guessContentType(src);
+          if (!contentStr) return;
+          if (contentStr.includes("image")) {
+            //Set new farvel-frame
+            entity.setAttribute("farvel-frame", {});
+
+            //Remove hoverability
+            let buttonEl = entity.querySelector("[toggle-frame-button]");
+            buttonEl.object3D.visible = true;
+            buttonEl.matrixAutoUpdate = true;
+          }
+        }
+        // file or clipboard
+        if (contentOrigin === 2 || contentOrigin === 3) {
+          if (src.type.includes("image")) {
+            //Set new farvel-frame
+            entity.setAttribute("farvel-frame", {});
+
+            //Remove hoverability
+            let buttonEl = entity.querySelector("[toggle-frame-button]");
+            buttonEl.object3D.visible = true;
+            buttonEl.matrixAutoUpdate = true;
+          }
+        }
+      });
+      //mike-frame-end
 
       return entity;
     };
