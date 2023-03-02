@@ -80,7 +80,7 @@ AFRAME.registerComponent("farvel-frame", {
 
   async init() {
     //Assign Spoke Data
-    if (!window.APP["farvelFrame"].farvelFrame) return;
+    if (!window.APP["farvelFrame"] || !window.APP["farvelFrame"].farvelFrame) return;
     Object.assign(this.data, window.APP["farvelFrame"]);
     this.time = 0;
 
@@ -226,7 +226,7 @@ AFRAME.registerComponent("farvel-frame-networker", {
 
   async init() {
     //Assign Spoke Data
-    if (!window.APP["farvelFrame"].farvelFrame) return;
+    if (!window.APP["farvelFrame"] || !window.APP["farvelFrame"].farvelFrame) return;
     Object.assign(this.data, window.APP["farvelFrame"]);
     this.time = 0;
 
